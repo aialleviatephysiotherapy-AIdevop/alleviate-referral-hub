@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alleviate Referral Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0d2137;--navy2:#1a3c5e;--gold:#c9a84c;--gold-lt:#fdf3dd;
+  --green:#1a6e43;--green-lt:#d4f1e4;
+  --red:#c1121f;--red-lt:#fde8e8;
+  --blue:#1d5fa8;--blue-lt:#dbeafe;
+  --teal:#0e7490;--teal-lt:#cffafe;
+  --orange:#b45309;--orange-lt:#fef3c7;
+  --purple:#6d28d9;--purple-lt:#ede9fe;
+  --bg:#f4f6f9;--surface:#ffffff;--border:#e5e7eb;
+  --ink:#0d2137;--ink2:#374151;--muted:#6b7280;
+  --radius:12px;--shadow:0 2px 16px rgba(13,33,55,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:fixed;top:0;left:0;right:0;height:56px;z-index:100;
+  background:var(--navy);display:flex;align-items:center;
+  padding:0 28px;gap:20px;border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.topbar-brand{display:flex;align-items:baseline;gap:10px}
+.topbar-name{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:#fff;letter-spacing:-0.01em}
+.topbar-sub{font-size:0.62rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.14em;font-weight:500}
+.topbar-spacer{flex:1}
+.topbar-info{font-size:0.72rem;color:rgba(255,255,255,0.35)}
+.topbar-user{font-size:0.75rem;color:rgba(255,255,255,0.6);font-weight:500}
+.topbar-btn{
+  font-family:'Outfit',sans-serif;font-size:0.72rem;padding:6px 14px;
+  border-radius:100px;border:1px solid rgba(255,255,255,0.2);
+  background:transparent;color:rgba(255,255,255,0.55);cursor:pointer;
+  transition:all .15s;
+}
+.topbar-btn:hover{color:#fff;border-color:rgba(255,255,255,0.4)}
+
+/* ── LAYOUT ── */
+.shell{display:flex;min-height:100vh;padding-top:56px}
+.sidebar{
+  width:210px;background:var(--navy);flex-shrink:0;
+  position:fixed;top:56px;left:0;height:calc(100vh - 56px);
+  overflow-y:auto;padding:20px 0;border-right:1px solid rgba(255,255,255,0.05);
+}
+.nav-section{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.14em;color:rgba(255,255,255,0.2);padding:0 20px;margin:16px 0 5px}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:9px 20px;
+  font-size:0.81rem;color:rgba(255,255,255,0.42);
+  cursor:pointer;border:none;background:none;width:100%;text-align:left;
+  border-left:3px solid transparent;transition:all .15s;
+}
+.nav-item:hover{color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.04)}
+.nav-item.active{color:#fff;background:rgba(255,255,255,0.08);border-left-color:var(--gold);font-weight:500}
+.nav-icon{font-size:1rem;width:18px;text-align:center}
+.main{flex:1;margin-left:210px;padding:32px 36px;min-height:calc(100vh - 56px)}
+.page{display:none}.page.active{display:block}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.page.active{animation:up .25s ease both}
+
+/* ── PAGE HEADER ── */
+.ph{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:26px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.ph-left .ph-title{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;letter-spacing:-0.02em}
+.ph-left .ph-desc{font-size:0.78rem;color:var(--muted);margin-top:4px;line-height:1.5;max-width:500px}
+.ph-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
+
+/* ── GRIDS ── */
+.g{display:grid;gap:14px;margin-bottom:16px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+
+/* ── KPI CARD ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.kpi-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:6px;font-weight:500}
+.kpi-value{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;line-height:1;color:var(--ink)}
+.kpi-sub{font-size:0.7rem;color:var(--muted);margin-top:4px}
+.kpi-badge{display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;font-weight:500;margin-top:8px;padding:3px 9px;border-radius:100px}
+.badge-green{background:var(--green-lt);color:var(--green)}
+.badge-gold{background:var(--gold-lt);color:var(--orange)}
+.badge-blue{background:var(--blue-lt);color:var(--blue)}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:9px;font-family:'Outfit',sans-serif;font-size:0.8rem;font-weight:500;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--navy);color:#fff}.btn-primary:hover{background:var(--navy2)}
+.btn-gold{background:var(--gold);color:#fff}.btn-gold:hover{background:#b5972a}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#155a35}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--ink2)}.btn-ghost:hover{background:var(--bg)}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#a00e18}
+.btn-xs{padding:5px 10px;font-size:0.71rem;border-radius:7px}
+.btn-sm{padding:7px 14px;font-size:0.76rem;border-radius:8px}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:0.8rem}
+th{text-align:left;font-size:0.63rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:500;padding:10px 14px;border-bottom:2px solid var(--border);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--ink2);vertical-align:middle}
+tr:hover td{background:#f9fafb}
+.pill{display:inline-flex;align-items:center;font-size:0.68rem;font-weight:500;padding:3px 10px;border-radius:100px;white-space:nowrap}
+.pill-prospect{background:#eff6ff;color:#1d5fa8}
+.pill-contacted{background:var(--gold-lt);color:var(--orange)}
+.pill-connected{background:var(--teal-lt);color:var(--teal)}
+.pill-active{background:var(--green-lt);color:var(--green)}
+.pill-pending{background:var(--orange-lt);color:var(--orange)}
+.pill-booked{background:var(--blue-lt);color:var(--blue)}
+.pill-completed{background:var(--green-lt);color:var(--green)}
+.pill-cancelled{background:var(--red-lt);color:var(--red)}
+.pill-mva{background:var(--red-lt);color:var(--red)}
+.pill-wsib{background:var(--orange-lt);color:var(--orange)}
+.pill-eh{background:var(--blue-lt);color:var(--blue)}
+.pill-oop{background:var(--purple-lt);color:var(--purple)}
+
+/* ── FILTER BAR ── */
+.fbar{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:18px;align-items:center}
+.fbar-input{border:1.5px solid var(--border);border-radius:9px;padding:8px 13px;font-family:'Outfit',sans-serif;font-size:0.8rem;background:#fff;outline:none;min-width:200px;transition:border-color .15s}
+.fbar-input:focus{border-color:var(--navy)}
+.fbar-sel{border:1.5px solid var(--border);border-radius:9px;padding:8px 11px;font-family:'Outfit',sans-serif;font-size:0.77rem;background:#fff;outline:none;cursor:pointer;color:var(--ink2)}
+
+/* ── PIPELINE BAR ── */
+.bar-row{display:flex;align-items:center;gap:11px;margin-bottom:9px;font-size:0.78rem}
+.bar-label{width:155px;color:var(--ink2);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;background:var(--bg);border-radius:100px;height:8px;overflow:hidden;border:1px solid var(--border)}
+.bar-fill{height:100%;border-radius:100px;transition:width .6s ease}
+.bar-val{width:44px;text-align:right;font-weight:600;font-size:0.74rem;color:var(--ink)}
+
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:28px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:700;margin-bottom:20px;color:var(--ink)}
+.fr{margin-bottom:13px}
+.fr label{display:block;font-size:0.67rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:5px;font-weight:500}
+.fr input,.fr select,.fr textarea{width:100%;border:1.5px solid var(--border);border-radius:9px;padding:10px 12px;font-family:'Outfit',sans-serif;font-size:0.84rem;color:var(--ink);background:var(--bg);outline:none;transition:border-color .15s}
+.fr input:focus,.fr select:focus,.fr textarea:focus{border-color:var(--navy);background:#fff}
+.fr textarea{resize:vertical;min-height:76px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.modal-footer{display:flex;justify-content:flex-end;gap:9px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* ── GUIDE SECTIONS ── */
+.guide-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:16px}
+.gs-title{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;color:var(--ink);margin-bottom:4px;display:flex;align-items:center;gap:9px}
+.gs-desc{font-size:0.78rem;color:var(--muted);margin-bottom:16px;line-height:1.5}
+.method-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px}
+.mc-title{font-size:0.86rem;font-weight:600;color:var(--ink);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.mc-body{font-size:0.78rem;color:var(--ink2);line-height:1.75}
+.mc-body li{margin-left:16px;margin-bottom:2px}
+.rule-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rule-box{border-radius:10px;padding:15px}
+.rule-box.can{background:var(--green-lt);border:1px solid #b2dfcc}
+.rule-box.cant{background:var(--red-lt);border:1px solid #f5b8b8}
+.rule-title{font-size:0.8rem;font-weight:600;margin-bottom:8px}
+.rule-title.can{color:var(--green)}.rule-title.cant{color:var(--red)}
+.rule-list{font-size:0.76rem;color:var(--ink2);line-height:1.9}
+.rule-list li{list-style:none;padding-left:0}
+.rule-list li::before{content:'✅ ';font-size:0.7rem}
+.rule-list.cant li::before{content:'❌ '}
+.script-box{background:#f8f9fa;border:1px solid var(--border);border-radius:9px;padding:14px;font-size:0.77rem;color:var(--ink2);line-height:1.75;white-space:pre-wrap;font-family:'Outfit',sans-serif;margin-top:8px}
+.info-badge{display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:#fff;font-size:0.72rem;padding:4px 11px;border-radius:100px;font-weight:500}
+.link-btn{display:inline-flex;align-items:center;gap:6px;background:var(--navy2);color:#fff;font-size:0.75rem;padding:7px 14px;border-radius:8px;text-decoration:none;font-weight:500;transition:background .15s}
+.link-btn:hover{background:var(--navy)}
+
+/* ── KANBAN ── */
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.kol{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:13px;min-height:180px}
+.kol-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
+.kol-label{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em}
+.kol-n{background:rgba(0,0,0,0.07);padding:2px 7px;border-radius:100px;font-size:0.67rem;color:var(--ink2)}
+.dc{background:#fff;border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:8px;transition:box-shadow .15s}
+.dc:hover{box-shadow:0 3px 12px rgba(0,0,0,0.08)}
+.dc-name{font-size:0.81rem;font-weight:600;margin-bottom:1px}
+.dc-spec{font-size:0.7rem;color:var(--muted)}
+.dc-clinic{font-size:0.69rem;color:var(--ink2);margin-top:1px}
+.dc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.dc-area{font-size:0.65rem;color:var(--muted)}
+.dc-btns{display:flex;gap:4px}
+.stag{font-size:0.62rem;font-weight:500;padding:2px 6px;border-radius:4px}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:11px 18px;border-radius:9px;font-size:0.79rem;z-index:500;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none}
+#toast.on{opacity:1;transform:translateY(0)}
+
+/* ── PHIPA NOTICE ── */
+.phipa-notice{background:var(--blue-lt);border:1px solid #93c5fd;border-radius:10px;padding:12px 16px;font-size:0.76rem;color:var(--blue);margin-bottom:18px;display:flex;align-items:flex-start;gap:9px;line-height:1.6}
+
+@media(max-width:900px){.sidebar{transform:translateX(-220px)}.main{margin-left:0}.g4{grid-template-columns:1fr 1fr}.kanban{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <span class="topbar-name">Alleviate</span>
+    <span class="topbar-sub">Referral Hub</span>
+  </div>
+  <div class="topbar-spacer"></div>
+  <span class="topbar-info" id="today-date"></span>
+  <span class="topbar-user" id="user-label"></span>
+  <button class="topbar-btn" onclick="signOut()">Sign Out</button>
+</div>
+
+<!-- SHELL -->
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="nav-section">Overview</div>
+  <button class="nav-item active" id="nav-dashboard" onclick="go('dashboard')">
+    <span class="nav-icon">📊</span>Dashboard
+  </button>
+
+  <div class="nav-section">Network</div>
+  <button class="nav-item" id="nav-doctors" onclick="go('doctors')">
+    <span class="nav-icon">👨‍⚕️</span>Doctor Network
+  </button>
+
+  <div class="nav-section">Referrals</div>
+  <button class="nav-item" id="nav-log" onclick="go('log')">
+    <span class="nav-icon">📋</span>Referral Log
+  </button>
+
+  <div class="nav-section">Resources</div>
+  <button class="nav-item" id="nav-guide" onclick="go('guide')">
+    <span class="nav-icon">📘</span>Connect Guide
+  </button>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ════════ DASHBOARD ════════ -->
+<div id="page-dashboard" class="page active">
+  <div class="ph">
+    <div class="ph-left">
+      <div class="ph-title">Dashboard</div>
+      <div class="ph-desc">Your physician referral network at a glance. Every active doctor = recurring monthly patients.</div>
+    </div>
+    <div class="ph-actions">
+      <button class="btn btn-primary btn-sm" onclick="openAddDoctor()">+ Add Doctor</button>
+      <button class="btn btn-gold btn-sm" onclick="openAddRef()">+ Log Referral</button>
+    </div>
+  </div>
+
+  <div class="g g4">
+    <div class="card"><div class="kpi-label">Active Referrers</div><div class="kpi-value" id="k-active">0</div><div class="kpi-sub">Doctors sending us patients</div><div class="kpi-badge badge-green">↑ Target: 30</div></div>
+    <div class="card"><div class="kpi-label">This Month</div><div class="kpi-value" id="k-month">0</div><div class="kpi-sub">Referrals received</div></div>
+    <div class="card"><div class="kpi-label">Est. Revenue</div><div class="kpi-value" id="k-rev">$0</div><div class="kpi-sub">From logged referrals</div><div class="kpi-badge badge-gold">↑ Target $100K/mo</div></div>
+    <div class="card"><div class="kpi-label">Total in CRM</div><div class="kpi-value" id="k-total">0</div><div class="kpi-sub">Doctors across all stages</div></div>
+  </div>
+
+  <div class="g g2">
+    <div class="card">
+      <div class="kpi-label" style="margin-bottom:13px">Outreach Pipeline</div>
+      <div id="db-pipeline"></div>
+    </div>
+    <div class="card">
+      <div class="kpi-label" style="margin-bottom:13px">Top Referral Sources (Revenue)</div>
+      <div id="db-sources"></div>
+    </div>
+  </div>
+
+  <div class="g g2">
+    <div class="card">
+      <div class="kpi-label" style="margin-bottom:11px">Recent Referrals</div>
+      <div id="db-recent"></div>
+    </div>
+    <div class="card">
+      <div class="kpi-label" style="margin-bottom:11px">Quick Actions</div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <button class="btn btn-primary" style="justify-content:flex-start" onclick="openAddDoctor()">➕ Add new doctor to pipeline</button>
+        <button class="btn btn-gold" style="justify-content:flex-start" onclick="openAddRef()">📋 Log incoming referral</button>
+        <button class="btn btn-ghost" style="justify-content:flex-start" onclick="go('guide')">📘 Open Connect Guide (PHIPA/CPO)</button>
+        <button class="btn btn-ghost" style="justify-content:flex-start" onclick="exportCSV()">⬇ Export referral data (CSV)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ DOCTOR NETWORK ════════ -->
+<div id="page-doctors" class="page">
+  <div class="ph">
+    <div class="ph-left">
+      <div class="ph-title">Doctor Network</div>
+      <div class="ph-desc">Your full physician CRM. Search, filter, advance stages, and track every relationship.</div>
+    </div>
+    <div class="ph-actions">
+      <button class="btn btn-primary btn-sm" onclick="openAddDoctor()">+ Add Doctor</button>
+    </div>
+  </div>
+
+  <!-- STAGE TABS -->
+  <div style="display:flex;gap:0;margin-bottom:18px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;width:fit-content">
+    <button class="stage-tab active" data-stage="" onclick="setStageTab(this,'')">All <span class="stage-count" id="sc-all"></span></button>
+    <button class="stage-tab" data-stage="prospect" onclick="setStageTab(this,'prospect')">Prospect <span class="stage-count" id="sc-prospect"></span></button>
+    <button class="stage-tab" data-stage="contacted" onclick="setStageTab(this,'contacted')">Contacted <span class="stage-count" id="sc-contacted"></span></button>
+    <button class="stage-tab" data-stage="connected" onclick="setStageTab(this,'connected')">Connected <span class="stage-count" id="sc-connected"></span></button>
+    <button class="stage-tab" data-stage="active" onclick="setStageTab(this,'active')">Active Referrer <span class="stage-count" id="sc-active"></span></button>
+  </div>
+
+  <style>
+    .stage-tab{font-family:'Outfit',sans-serif;font-size:0.76rem;padding:7px 14px;border:none;background:transparent;cursor:pointer;border-radius:7px;color:var(--muted);font-weight:500;transition:all .15s}
+    .stage-tab:hover{color:var(--ink)}
+    .stage-tab.active{background:var(--navy);color:#fff}
+    .stage-count{background:rgba(255,255,255,0.2);padding:1px 6px;border-radius:100px;font-size:0.65rem;margin-left:4px}
+    .stage-tab:not(.active) .stage-count{background:rgba(0,0,0,0.07);color:var(--muted)}
+  </style>
+
+  <div class="fbar">
+    <input class="fbar-input" id="doc-search" placeholder="Search name, specialty, clinic, area..." oninput="renderDoctors()">
+    <select class="fbar-sel" id="doc-spec" onchange="renderDoctors()">
+      <option value="">All Specialties</option>
+      <option>Family / GP</option><option>Walk-In Clinic</option>
+      <option>Orthopedic Surgery</option><option>Neurology</option>
+      <option>Sports Medicine</option><option>Occupational Health</option>
+      <option>Pediatrics</option><option>Rheumatology</option>
+      <option>Emergency Medicine</option><option>Physiatry</option>
+      <option>Chiropractic</option><option>Legal / MVA</option>
+      <option>Insurance / WSIB</option><option>Other</option>
+    </select>
+    <select class="fbar-sel" id="doc-pri" onchange="renderDoctors()">
+      <option value="">All Priority</option>
+      <option value="High">High Priority</option>
+      <option value="Medium">Medium</option>
+      <option value="Low">Low</option>
+    </select>
+  </div>
+
+  <div class="card" style="padding:0">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Doctor / Clinic</th><th>Specialty</th><th>Phone / Fax</th>
+          <th>Email</th><th>Services to Pitch</th><th>Stage</th><th>Last Contact</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="doctors-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ REFERRAL LOG ════════ -->
+<div id="page-log" class="page">
+  <div class="ph">
+    <div class="ph-left">
+      <div class="ph-title">Referral Log</div>
+      <div class="ph-desc">Track every patient referred to Alleviate by a physician.</div>
+    </div>
+    <div class="ph-actions">
+      <button class="btn btn-primary btn-sm" onclick="openAddRef()">+ Log Referral</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+    </div>
+  </div>
+
+  <div class="phipa-notice">
+    🔒 <div><strong>PHIPA Reminder:</strong> Use patient initials or a code (e.g. "J.D." or "PT-001"), not full names. This platform is not a clinical records system — only log minimal identifying info needed to track the referral relationship.</div>
+  </div>
+
+  <div class="fbar">
+    <input class="fbar-input" id="ref-search" placeholder="Search patient code, doctor, service..." oninput="renderLog()">
+    <select class="fbar-sel" id="ref-ins" onchange="renderLog()">
+      <option value="">All Insurance</option>
+      <option>Extended Health</option><option>MVA</option>
+      <option>WSIB</option><option>Private / OOP</option>
+    </select>
+    <select class="fbar-sel" id="ref-status" onchange="renderLog()">
+      <option value="">All Status</option>
+      <option>Pending Intake</option><option>Booked</option>
+      <option>Active</option><option>Completed</option><option>Cancelled</option>
+    </select>
+  </div>
+
+  <div class="card" style="padding:0">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Patient Code</th><th>Referred By</th><th>Service</th>
+          <th>Insurance</th><th>Est. Revenue</th><th>Status</th><th></th>
+        </tr></thead>
+        <tbody id="log-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ CONNECT GUIDE ════════ -->
+<div id="page-guide" class="page">
+  <div class="ph">
+    <div class="ph-left">
+      <div class="ph-title">Connect Guide</div>
+      <div class="ph-desc">How to legally and ethically build a physician referral network in Ontario. Includes PHIPA + CPO guidelines.</div>
+    </div>
+  </div>
+
+  <!-- QUICK LINKS -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
+    <a href="https://www.cpso.on.ca/Public-Register" target="_blank" class="link-btn">🔍 CPSO Doctor Directory</a>
+    <a href="https://www.cpo.on.ca" target="_blank" class="link-btn">🏥 College of Physiotherapists (CPO)</a>
+    <a href="https://www.ontario.ca/laws/statute/04p03" target="_blank" class="link-btn">⚖️ PHIPA Full Text</a>
+    <a href="https://www.google.com/maps/search/family+physician+Mississauga+ON" target="_blank" class="link-btn">🗺️ Find GPs Near You</a>
+  </div>
+
+  <!-- HOW TO CONTACT DOCTORS -->
+  <div class="guide-section">
+    <div class="gs-title">🤝 The 5 Ways to Reach Physicians Legally</div>
+    <div class="gs-desc">All five methods below are fully permitted under PHIPA and CPO advertising guidelines. No referral fees — relationships only.</div>
+
+    <div class="method-card">
+      <div class="mc-title">1. In-Person Drop-In Visit <span class="info-badge">Most Effective</span></div>
+      <div class="mc-body">
+        Visit the clinic during non-peak hours (11 am–1 pm or after 4 pm). Ask for the <strong>clinic manager or office coordinator</strong> first — not the doctor directly.<br><br>
+        <strong>What to bring:</strong>
+        <ul>
+          <li>Referral pads (pre-printed with your clinic info)</li>
+          <li>Brochures listing all services (physio, MVA, WSIB, concussion, pediatric, etc.)</li>
+          <li>Business cards with your direct line + fax number</li>
+          <li>A one-page "services overview" sheet</li>
+        </ul><br>
+        <strong>What to say:</strong>
+      </div>
+      <div class="script-box">"Hi, my name is [Your Name] from Alleviate Physiotherapy — we're located at [Address], about [X] minutes from here. We offer physiotherapy, acupuncture, chiropractic, RMT, concussion rehab, pediatric physio, and custom orthotics. We have same-week availability and send detailed progress reports back to referring physicians after every 4 sessions. Would it be okay to leave some referral pads and information for your doctors?"</div>
+      <div class="mc-body" style="margin-top:8px"><strong>Follow up:</strong> Return within 4–6 weeks. Bring coffee or treats for the front desk — small gestures build lasting goodwill.</div>
+    </div>
+
+    <div class="method-card">
+      <div class="mc-title">2. Email Outreach</div>
+      <div class="mc-body">
+        Find the clinic email on their website or call to ask. Use the templates in the Doctor Network page. Send a professional introduction.<br><br>
+        <ul>
+          <li>Subject line should be specific: <em>"Physiotherapy Referral Partnership — [Your Clinic Name]"</em></li>
+          <li>Keep it under 200 words — doctors are busy</li>
+          <li>Offer something specific: "We guarantee appointments within 48–72 hours"</li>
+          <li>Follow up with a phone call 3–5 business days later</li>
+          <li>Attach a one-page services PDF if possible</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="method-card">
+      <div class="mc-title">3. Phone + Fax</div>
+      <div class="mc-body">
+        Call and ask for the <strong>Practice Manager or Referral Coordinator</strong>. Many Ontario medical offices still use fax — fax a one-page introduction with your referral pad details.<br><br>
+        <strong>Phone script:</strong>
+      </div>
+      <div class="script-box">"Hi, I'm calling from Alleviate Physiotherapy in Mississauga. I was hoping to connect with your practice manager about a referral partnership — we offer physiotherapy, MVA, WSIB, concussion rehab, and several other services with very quick intake times. Would it be okay to fax over our information, or could I schedule a brief 10-minute call?"</div>
+      <div class="mc-body" style="margin-top:8px"><strong>Fax tip:</strong> Include your fax number prominently on your referral pad so completed pads get sent back to you efficiently.</div>
+    </div>
+
+    <div class="method-card">
+      <div class="mc-title">4. Lunch & Learn <span class="info-badge">Highest ROI Long-Term</span></div>
+      <div class="mc-body">
+        Offer to bring lunch for the clinic staff and give a 15–20 minute presentation about your services. This builds the deepest relationships.<br><br>
+        <ul>
+          <li>Contact the clinic manager to book a date</li>
+          <li>Bring food for 5–15 people (budget $100–200)</li>
+          <li>Present: who you are, what you treat, what makes you different, how the referral process works</li>
+          <li>Leave referral pads, brochures, business cards with every staff member</li>
+          <li>Offer to answer specific patient case questions</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="method-card">
+      <div class="mc-title">5. CPSO Directory Search — Find Any Licensed Physician in Ontario</div>
+      <div class="mc-body">
+        The College of Physicians and Surgeons of Ontario publishes a public register of all licensed physicians. Use it to find doctors by specialty and city.<br><br>
+        <ol style="margin-left:16px;line-height:2">
+          <li>Go to <a href="https://www.cpso.on.ca/Public-Register" target="_blank" style="color:var(--navy2);font-weight:500">cpso.on.ca/Public-Register</a></li>
+          <li>Search by City: <em>Mississauga</em> or <em>Brampton</em></li>
+          <li>Filter by Specialty: <em>Family Medicine, Orthopedic Surgery, Neurology, etc.</em></li>
+          <li>Find their practice address and clinic phone number</li>
+          <li>Add them to your Doctor Network above</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHIPA COMPLIANCE -->
+  <div class="guide-section">
+    <div class="gs-title">🔒 PHIPA Compliance — What You Need to Know</div>
+    <div class="gs-desc">Ontario's Personal Health Information Protection Act (PHIPA, 2004) governs how patient information is handled. Here's what matters for your referral network.</div>
+
+    <div class="rule-grid">
+      <div class="rule-box can">
+        <div class="rule-title can">✅ You CAN</div>
+        <ul class="rule-list">
+          <li>Collect doctors' business contact info (name, phone, email, address — this is NOT personal health information)</li>
+          <li>Receive a patient referral from a physician under the "circle of care" — no extra consent needed</li>
+          <li>Share patient progress info back with the referring physician (this is encouraged)</li>
+          <li>Store referral tracking data using patient codes/initials in this platform</li>
+          <li>Market your clinic professionally to physicians</li>
+          <li>Discuss services and capabilities with referring doctors</li>
+        </ul>
+      </div>
+      <div class="rule-box cant">
+        <div class="rule-title cant">❌ You CANNOT</div>
+        <ul class="rule-list cant">
+          <li>Store full patient names + diagnosis + full treatment records in an unsecured web platform</li>
+          <li>Share a patient's health information with any provider outside their circle of care without written consent</li>
+          <li>Use patient health data for marketing purposes without consent</li>
+          <li>Give patient information to lawyers/insurers without the patient's signed consent (FSRA Form)</li>
+          <li>Disclose patient information over unsecured email without encryption</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="method-card" style="margin-top:12px;background:var(--blue-lt);border-color:#93c5fd">
+      <div class="mc-title" style="color:var(--blue)">ℹ️ Circle of Care (PHIPA s.38)</div>
+      <div class="mc-body" style="color:var(--blue)">When a physician refers a patient to you for treatment, both of you are in that patient's "circle of care." You can share clinical information with the referring physician <strong>without additional consent</strong> — this is not only permitted but expected. Sending progress reports is how you build the referral relationship.</div>
+    </div>
+  </div>
+
+  <!-- CPO GUIDELINES -->
+  <div class="guide-section">
+    <div class="gs-title">🏥 CPO Standards — College of Physiotherapists of Ontario</div>
+    <div class="gs-desc">Key standards from the College of Physiotherapists of Ontario that apply to building your referral network.</div>
+
+    <div class="method-card">
+      <div class="mc-title">Standard 3 — Communication & Collaborative Care <span class="info-badge">Critical for Referrals</span></div>
+      <div class="mc-body">
+        CPO requires physiotherapists to communicate appropriately with other health professionals involved in a patient's care.<br><br>
+        <strong>Practical implication:</strong> Send a <em>brief progress note or discharge summary</em> back to the referring physician after every 4–6 sessions, and upon discharge. This is what converts a one-time referral into an ongoing relationship. It shows you're a reliable partner.<br><br>
+        <strong>What to include in your progress note:</strong>
+        <ul>
+          <li>Patient's initial presentation and objective findings</li>
+          <li>Treatment approach and goals</li>
+          <li>Progress to date and current functional status</li>
+          <li>Next steps or recommendations</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="method-card">
+      <div class="mc-title">CPO Advertising Guidelines — What's Allowed</div>
+      <div class="mc-body">
+        The CPO permits professional marketing and advertising. It must be:
+        <ul>
+          <li><strong>Truthful</strong> — Do not claim services you don't offer or outcomes you can't guarantee</li>
+          <li><strong>Not misleading</strong> — No exaggerated claims about results</li>
+          <li><strong>Dignified</strong> — Maintain professional standards in all outreach</li>
+          <li><strong>Compliant with RHPA</strong> — No prohibited advertising under the Regulated Health Professions Act</li>
+        </ul>
+        All five outreach methods above (drop-in, email, phone, lunch & learn, CPSO search) are fully permitted.
+      </div>
+    </div>
+
+    <div class="rule-box cant" style="margin-top:4px;border-radius:10px;padding:16px">
+      <div class="rule-title cant">❌ Fee-Splitting is Strictly Prohibited</div>
+      <ul class="rule-list cant" style="font-size:0.77rem">
+        <li>You cannot pay physicians per referral (cash, gifts, commissions, or any financial benefit)</li>
+        <li>You cannot receive payment from specialists for sending patients to them</li>
+        <li>Violates CPO Standards AND the Regulated Health Professions Act (RHPA)</li>
+        <li>Can result in suspension of registration</li>
+        <li><strong>Build relationships through excellent care and communication — not payments</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- REFERRAL PAD GUIDE -->
+  <div class="guide-section">
+    <div class="gs-title">📝 Using Your Referral Pads</div>
+    <div class="gs-desc">Referral pads are one of the most effective tools for building physician referrals. Here's how to deploy them effectively.</div>
+
+    <div class="method-card">
+      <div class="mc-title">What Your Referral Pad Should Include</div>
+      <div class="mc-body">
+        <ul>
+          <li><strong>Your clinic name, address, and logo</strong> — prominent at the top</li>
+          <li><strong>Phone number</strong> — for the patient/clinic to call</li>
+          <li><strong>Fax number</strong> — so the completed form gets sent back to you</li>
+          <li><strong>Services checklist</strong> — checkboxes for: Physiotherapy, MVA, WSIB, Concussion, Pediatric Physio, Acupuncture, Chiropractic, RMT, Naturopathy, Osteopathy, Custom Orthotics, Custom Braces</li>
+          <li><strong>Patient info fields</strong> — Name, DOB, contact number</li>
+          <li><strong>Diagnosis / Reason for Referral</strong> — free text line</li>
+          <li><strong>Urgency</strong> — Routine / Urgent / ASAP checkbox</li>
+          <li><strong>Physician name + signature + date</strong></li>
+          <li><strong>Insurance type</strong> — Extended Health / MVA (claim #) / WSIB (claim #) / Private</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="method-card">
+      <div class="mc-title">How to Distribute Them</div>
+      <div class="mc-body">
+        <ul>
+          <li>Leave <strong>10–20 pads</strong> per clinic during your drop-in visit</li>
+          <li>Return every 4–6 weeks to replenish and check in</li>
+          <li>Ask the front desk admin to keep them visible at the check-out desk</li>
+          <li>Follow up: "Have you had any patients who might benefit from physio?" is a natural conversation starter</li>
+          <li>Track which clinics you've dropped pads at — add a note in each doctor's card</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMAIL TEMPLATES -->
+  <div class="guide-section">
+    <div class="gs-title">✉️ Email Templates — Ready to Send</div>
+    <div class="gs-desc">Personalize the [brackets] and send. Each is tuned to that specialty's referral motivators. Click "Copy" to copy to clipboard.</div>
+    <div id="guide-templates"></div>
+  </div>
+
+  <!-- FIND DOCTORS ONLINE -->
+  <div class="guide-section">
+    <div class="gs-title">🗺️ Find New Doctors in Your Area</div>
+    <div class="gs-desc">Use these one-click searches to discover new clinics and physicians opening near Mississauga. Aim to scan each category once a week.</div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px" id="guide-discover"></div>
+  </div>
+
+</div><!-- /guide -->
+
+</main>
+</div><!-- /shell -->
+
+<!-- ══ ADD DOCTOR MODAL ══ -->
+<div class="overlay" id="modal-doc">
+<div class="modal">
+  <div class="modal-title" id="doc-modal-title">Add Doctor</div>
+  <div class="fg">
+    <div class="fr"><label>First Name</label><input id="d-fn" placeholder="First"></div>
+    <div class="fr"><label>Last Name *</label><input id="d-ln" placeholder="Last Name"></div>
+  </div>
+  <div class="fg">
+    <div class="fr"><label>Specialty *</label>
+      <select id="d-sp">
+        <option>Family / GP</option><option>Walk-In Clinic</option>
+        <option>Orthopedic Surgery</option><option>Neurology</option>
+        <option>Sports Medicine</option><option>Occupational Health</option>
+        <option>Pediatrics</option><option>Rheumatology</option>
+        <option>Emergency Medicine</option><option>Physiatry</option>
+        <option>Chiropractic</option><option>Legal / MVA</option>
+        <option>Insurance / WSIB</option><option>Other</option>
+      </select>
+    </div>
+    <div class="fr"><label>Stage</label>
+      <select id="d-st">
+        <option value="prospect">Prospect</option>
+        <option value="contacted">Contacted</option>
+        <option value="connected">Connected</option>
+        <option value="active">Active Referrer</option>
+      </select>
+    </div>
+  </div>
+  <div class="fr"><label>Clinic / Practice Name</label><input id="d-cl" placeholder="e.g. Heartland Medical Centre"></div>
+  <div class="fg">
+    <div class="fr"><label>Phone</label><input id="d-ph" placeholder="(905) 555-0100"></div>
+    <div class="fr"><label>Fax</label><input id="d-fx" placeholder="(905) 555-0101"></div>
+  </div>
+  <div class="fg">
+    <div class="fr"><label>Email</label><input id="d-em" type="email" placeholder="clinic@email.com"></div>
+    <div class="fr"><label>Priority</label>
+      <select id="d-pr"><option>High</option><option>Medium</option><option>Low</option></select>
+    </div>
+  </div>
+  <div class="fr"><label>Address / Area</label><input id="d-ad" placeholder="Mississauga, ON"></div>
+  <div class="fr"><label>Services to Pitch</label>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:9px" id="pitch-cbs"></div>
+  </div>
+  <div class="fr"><label>Notes / Last Contact</label><textarea id="d-no" placeholder="Context, last visit date, who you spoke with..."></textarea></div>
+  <div class="modal-footer">
+    <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-doc')">Cancel</button>
+    <button class="btn btn-primary btn-sm" onclick="saveDoc()">Save Doctor</button>
+  </div>
+</div>
+</div>
+
+<!-- ══ ADD REFERRAL MODAL ══ -->
+<div class="overlay" id="modal-ref">
+<div class="modal">
+  <div class="modal-title">Log Incoming Referral</div>
+  <div class="phipa-notice" style="margin-bottom:16px">🔒 Use patient initials or a code (e.g. "J.D." or "PT-042"), not full names.</div>
+  <div class="fg">
+    <div class="fr"><label>Patient Code *</label><input id="r-pt" placeholder="J.D. or PT-001"></div>
+    <div class="fr"><label>Date Received *</label><input id="r-dt" type="date"></div>
+  </div>
+  <div class="fr"><label>Referred By *</label>
+    <select id="r-dr"><option value="">— Select Doctor —</option></select>
+  </div>
+  <div class="fg">
+    <div class="fr"><label>Service</label>
+      <select id="r-sv">
+        <option>Physiotherapy — General</option>
+        <option>Physiotherapy — MVA</option><option>Physiotherapy — WSIB</option>
+        <option>Pediatric Physiotherapy</option><option>Concussion Rehab</option>
+        <option>Vestibular Therapy</option><option>Acupuncture</option>
+        <option>Chiropractic</option><option>RMT</option>
+        <option>Naturopathy</option><option>Osteopathy</option>
+        <option>Custom Orthotics</option><option>Custom Braces</option>
+      </select>
+    </div>
+    <div class="fr"><label>Insurance</label>
+      <select id="r-in">
+        <option>Extended Health</option><option>MVA</option>
+        <option>WSIB</option><option>Private / OOP</option>
+      </select>
+    </div>
+  </div>
+  <div class="fg">
+    <div class="fr"><label>Est. Revenue ($)</label><input id="r-rv" type="number" placeholder="800" min="0"></div>
+    <div class="fr"><label>Status</label>
+      <select id="r-st">
+        <option>Pending Intake</option><option>Booked</option>
+        <option>Active</option><option>Completed</option><option>Cancelled</option>
+      </select>
+    </div>
+  </div>
+  <div class="fr"><label>Notes</label><textarea id="r-no" placeholder="Diagnosis, urgency notes..."></textarea></div>
+  <div class="modal-footer">
+    <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-ref')">Cancel</button>
+    <button class="btn btn-primary btn-sm" onclick="saveRef()">Save Referral</button>
+  </div>
+</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+// ── AUTH CHECK ────────────────────────────────────────────────
+if(!sessionStorage.getItem('rh_auth')){location.href='index.html';}
+document.getElementById('user-label').textContent = (sessionStorage.getItem('rh_user')||'').replace(/^./,c=>c.toUpperCase());
+document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'});
+function signOut(){sessionStorage.removeItem('rh_auth');location.href='index.html';}
+
+// ── DATA ──────────────────────────────────────────────────────
+const SVCS=['Physiotherapy','MVA','WSIB','Pediatric Physio','Concussion Rehab',
+  'Vestibular Therapy','Acupuncture','Chiropractic','RMT',
+  'Naturopathy','Osteopathy','Custom Orthotics','Custom Braces'];
+
+const STAGES=[
+  {id:'prospect',  label:'Prospect',       color:'#1d5fa8'},
+  {id:'contacted', label:'Contacted',      color:'#b45309'},
+  {id:'connected', label:'Connected',      color:'#0e7490'},
+  {id:'active',    label:'Active Referrer',color:'#1a6e43'},
+];
+
+// Pre-loaded physician targets — Mississauga/Brampton/GTA West
+const SEED=[
+  // GPs
+  {id:'g1',fn:'[Dr.]',ln:'Heartland Medical',sp:'Family / GP',cl:'Heartland Medical Centre',ph:'',fx:'',em:'',ad:'Erin Mills, Mississauga',pr:'High',st:'prospect',pitch:['Physiotherapy','MVA','WSIB','Acupuncture'],no:'Large multi-physician GP practice. Very high referral potential.',dt:'2026-06-27'},
+  {id:'g2',fn:'[Dr.]',ln:'Square One Medical',sp:'Family / GP',cl:'Square One Medical Clinic',ph:'',fx:'',em:'',ad:'City Centre Dr, Mississauga',pr:'High',st:'prospect',pitch:['Physiotherapy','Acupuncture','RMT'],no:'High foot-traffic location. Multiple physicians.',dt:'2026-06-27'},
+  {id:'g3',fn:'[Dr.]',ln:'Port Credit Medical',sp:'Family / GP',cl:'Port Credit Medical Clinic',ph:'',fx:'',em:'',ad:'Port Credit, Mississauga',pr:'High',st:'prospect',pitch:['Physiotherapy','Naturopathy','Acupuncture'],no:'Affluent area — private pay mix is higher.',dt:'2026-06-27'},
+  {id:'g4',fn:'[Dr.]',ln:'Meadowvale Family Health',sp:'Family / GP',cl:'Meadowvale Family Health Team',ph:'',fx:'',em:'',ad:'Meadowvale, Mississauga',pr:'High',st:'prospect',pitch:['Physiotherapy','MVA','Custom Orthotics'],no:'Suburban families. Good for general physio + orthotics.',dt:'2026-06-27'},
+  {id:'g5',fn:'[Dr.]',ln:'Malton Medical',sp:'Family / GP',cl:'Malton Medical Centre',ph:'',fx:'',em:'',ad:'Malton, Mississauga',pr:'High',st:'prospect',pitch:['WSIB','Physiotherapy','MVA'],no:'Near airport. High industrial/warehouse workforce = high WSIB.',dt:'2026-06-27'},
+  {id:'g6',fn:'[Dr.]',ln:'Peel Medical Centre',sp:'Family / GP',cl:'Peel Medical Centre',ph:'',fx:'',em:'',ad:'Brampton, ON',pr:'High',st:'prospect',pitch:['Physiotherapy','WSIB','MVA'],no:'Brampton. Large patient population. WSIB + MVA focus.',dt:'2026-06-27'},
+  {id:'g7',fn:'[Dr.]',ln:'Trillium FHT',sp:'Family / GP',cl:'Trillium Family Health Team',ph:'',fx:'',em:'',ad:'100 Queensway W, Mississauga',pr:'High',st:'prospect',pitch:['Physiotherapy','Pediatric Physio','MVA'],no:'Hospital-affiliated family health team. Target the team coordinator.',dt:'2026-06-27'},
+  // Walk-ins
+  {id:'w1',fn:'[Clinic]',ln:'Appletree Medical',sp:'Walk-In Clinic',cl:'Appletree Medical Group',ph:'',fx:'',em:'',ad:'Multiple Mississauga Locations',pr:'High',st:'prospect',pitch:['Physiotherapy','MVA','Acupuncture'],no:'Chain walk-in. Very high daily acute injury volume.',dt:'2026-06-27'},
+  {id:'w2',fn:'[Clinic]',ln:'Medpoint Healthcare',sp:'Walk-In Clinic',cl:'Medpoint Healthcare',ph:'',fx:'',em:'',ad:'Mississauga, ON',pr:'High',st:'prospect',pitch:['Physiotherapy','MVA','WSIB'],no:'Leave referral pads at front desk. Walk-ins see sprains/strains daily.',dt:'2026-06-27'},
+  {id:'w3',fn:'[Clinic]',ln:'Brampton Civic Walk-In',sp:'Walk-In Clinic',cl:'Brampton Civic Hospital Walk-In',ph:'',fx:'',em:'',ad:'2100 Bovaird Dr E, Brampton',pr:'High',st:'prospect',pitch:['Physiotherapy','MVA','WSIB','Concussion Rehab'],no:'Hospital-affiliated. High MVA + workplace injury volume.',dt:'2026-06-27'},
+  // Orthopedic
+  {id:'o1',fn:'[Surgeon]',ln:'Trillium Orthopaedics',sp:'Orthopedic Surgery',cl:'Trillium Health Partners — Ortho',ph:'',fx:'',em:'',ad:'100 Queensway W, Mississauga',pr:'High',st:'prospect',pitch:['Physiotherapy','Custom Braces','Custom Orthotics'],no:'Post-op ACL, knee, hip, shoulder rehab. Find surgeons via CPSO.',dt:'2026-06-27'},
+  {id:'o2',fn:'[Surgeon]',ln:'Credit Valley Ortho',sp:'Orthopedic Surgery',cl:'Credit Valley Hospital — Ortho',ph:'',fx:'',em:'',ad:'2200 Eglinton Ave W, Mississauga',pr:'High',st:'prospect',pitch:['Physiotherapy','Custom Braces','Custom Orthotics'],no:'Get on preferred provider list. Contact office manager.',dt:'2026-06-27'},
+  // Neurology
+  {id:'n1',fn:'[Neurologist]',ln:'Mississauga Neurology',sp:'Neurology',cl:'Mississauga Neurology Associates',ph:'',fx:'',em:'',ad:'Mississauga, ON',pr:'High',st:'prospect',pitch:['Concussion Rehab','Vestibular Therapy','Physiotherapy'],no:'Post-concussion + TBI patients. High LTV. We offer a rare niche.',dt:'2026-06-27'},
+  {id:'n2',fn:'[MD]',ln:'Complete Concussion Mgmt',sp:'Neurology',cl:'Complete Concussion Management',ph:'',fx:'',em:'',ad:'GTA West',pr:'High',st:'prospect',pitch:['Concussion Rehab','Vestibular Therapy'],no:'Concussion-specialist clinic. Natural partnership opportunity.',dt:'2026-06-27'},
+  // Sports Med
+  {id:'sm1',fn:'[MD]',ln:'SportMed Corp',sp:'Sports Medicine',cl:'SportMed Corp',ph:'',fx:'',em:'',ad:'Mississauga / Brampton',pr:'High',st:'prospect',pitch:['Physiotherapy','Acupuncture','Custom Orthotics','RMT'],no:'Multi-location sports medicine. Get on preferred provider list.',dt:'2026-06-27'},
+  // Occupational Health
+  {id:'oh1',fn:'[MD]',ln:'Concentra Medical',sp:'Occupational Health',cl:'Concentra Medical Centres',ph:'',fx:'',em:'',ad:'Mississauga, ON',pr:'High',st:'prospect',pitch:['WSIB','Physiotherapy','Acupuncture','Osteopathy'],no:'WSIB-authorized. Build this relationship for steady WSIB flow.',dt:'2026-06-27'},
+  {id:'oh2',fn:'[MD]',ln:'Peel Occupational Health',sp:'Occupational Health',cl:'Peel Occupational Health',ph:'',fx:'',em:'',ad:'Brampton, ON',pr:'High',st:'prospect',pitch:['WSIB','Physiotherapy','Custom Orthotics'],no:'Brampton industrial belt. Very high WSIB volume. Top priority.',dt:'2026-06-27'},
+  // Pediatrics
+  {id:'p1',fn:'[Pediatrician]',ln:'Mississauga Paediatrics',sp:'Pediatrics',cl:'Mississauga Paediatrics',ph:'',fx:'',em:'',ad:'Mississauga, ON',pr:'High',st:'prospect',pitch:['Pediatric Physio'],no:'Pediatric physio is rare. Very strong differentiation pitch.',dt:'2026-06-27'},
+  {id:'p2',fn:'[Pediatrician]',ln:'Brampton Paediatrics',sp:'Pediatrics',cl:'Brampton Paediatric Clinic',ph:'',fx:'',em:'',ad:'Brampton, ON',pr:'High',st:'prospect',pitch:['Pediatric Physio'],no:'Large young family population in Brampton. High demand.',dt:'2026-06-27'},
+  // Physiatry
+  {id:'pm1',fn:'[Physiatrist]',ln:'GTA Rehab Medicine',sp:'Physiatry',cl:'GTA Rehabilitation Medicine',ph:'',fx:'',em:'',ad:'Mississauga, ON',pr:'High',st:'prospect',pitch:['Physiotherapy','MVA','WSIB','Custom Braces'],no:'Physiatrists manage rehab — we execute. Natural partnership.',dt:'2026-06-27'},
+  // MVA Legal
+  {id:'mv1',fn:'[Lawyer]',ln:'PI Litigation Firm',sp:'Legal / MVA',cl:'Personal Injury Law Firm',ph:'',fx:'',em:'',ad:'Mississauga, ON',pr:'High',st:'prospect',pitch:['MVA','Physiotherapy','Acupuncture','Chiropractic'],no:'Personal injury lawyers direct MVA clients to trusted clinics.',dt:'2026-06-27'},
+  // WSIB
+  {id:'ws1',fn:'[Case Manager]',ln:'WSIB Mississauga',sp:'Insurance / WSIB',cl:'WSIB Mississauga Office',ph:'',fx:'',em:'',ad:'Mississauga, ON',pr:'High',st:'prospect',pitch:['WSIB','Physiotherapy','Acupuncture'],no:'WSIB case managers recommend providers to injured workers.',dt:'2026-06-27'},
+  // Chiropractors
+  {id:'c1',fn:'[DC]',ln:'Local Chiro Practice',sp:'Chiropractic',cl:'Local Chiropractic Clinic',ph:'',fx:'',em:'',ad:'Mississauga, ON',pr:'Medium',st:'prospect',pitch:['Physiotherapy','RMT','Custom Orthotics'],no:'Cross-referral partnership. We send them chiro, they send us physio/RMT.',dt:'2026-06-27'},
+];
+
+function load(k,d){try{return JSON.parse(localStorage.getItem(k))||d}catch{return d}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+
+let docs = load('rh_docs', SEED);
+let refs = load('rh_refs', []);
+
+let stageFilter = '';
+
+// ── EMAIL TEMPLATES ───────────────────────────────────────────
+const TMPLS=[
+  {title:'Family Physician / GP',for:'Family / GP',
+   body:`Subject: Physiotherapy Referral Partnership — Alleviate Physiotherapy
+
+Dear Dr. [Last Name],
+
+I hope this message finds you well. My name is [Your Name] from Alleviate Physiotherapy, located at [Address] in Mississauga.
+
+We offer a comprehensive range of services your patients may benefit from:
+• Physiotherapy (MVA, WSIB, general musculoskeletal)
+• Acupuncture & dry needling
+• Chiropractic, RMT, Naturopathy, Osteopathy
+• Pediatric physiotherapy
+• Concussion & vestibular rehabilitation
+• Custom orthotics and braces
+
+What we offer your practice:
+✓ Appointments within 48–72 hours of referral
+✓ Detailed progress reports after every 4 sessions
+✓ Direct billing to extended health, WSIB, and MVA insurers
+
+Could I drop by with our referral pads, or would a brief 10-minute call work?
+
+Warm regards,
+[Your Name] | Alleviate Physiotherapy
+[Phone] | [Email] | [Address]`},
+
+  {title:'Walk-In Clinic',for:'Walk-In Clinic',
+   body:`Subject: Physiotherapy Follow-Up Referrals — Alleviate Physiotherapy
+
+Dear Clinic Manager,
+
+I'm reaching out from Alleviate Physiotherapy regarding follow-up rehabilitation for walk-in patients — particularly MVA injuries, workplace injuries (WSIB), and acute musculoskeletal complaints.
+
+We offer next-day appointments in most cases and would love to be your go-to physiotherapy referral for follow-up care.
+
+May I drop by with referral pads at a convenient time?
+
+Best regards,
+[Your Name] | Alleviate Physiotherapy | [Phone]`},
+
+  {title:'Orthopedic Surgeon',for:'Orthopedic Surgery',
+   body:`Subject: Post-Operative Physiotherapy Partnership — Alleviate Physiotherapy
+
+Dear Dr. [Last Name],
+
+I'm reaching out regarding post-operative rehabilitation for your patients. We specialize in surgical rehab including ACL/meniscus, rotator cuff, hip & knee replacement, with custom bracing and orthotics on-site.
+
+Patients are seen within 48 hours of your referral. Detailed outcome reports are sent after every 4–6 sessions aligned to your surgical timeline.
+
+Would you be open to a brief meeting to explore a partnership?
+
+Best regards,
+[Your Name] | Alleviate Physiotherapy | [Phone]`},
+
+  {title:'Neurologist — Concussion & Vestibular',for:'Neurology',
+   body:`Subject: Concussion & Vestibular Rehabilitation — Alleviate Physiotherapy
+
+Dear Dr. [Last Name],
+
+Alleviate Physiotherapy offers specialized concussion rehabilitation and vestibular therapy — services that are often difficult for patients to access promptly in our area.
+
+Our program includes vestibular assessment (BPPV, VOR, gaze stability), graded return-to-activity protocols, and visual-vestibular integration therapy. We have availability within 3–5 business days for urgent referrals.
+
+Would you be open to a 15-minute call?
+
+Sincerely,
+[Your Name] | Alleviate Physiotherapy | [Phone]`},
+
+  {title:'MVA Lawyer / Paralegal',for:'Legal / MVA',
+   body:`Subject: MVA Physiotherapy & Documentation — Alleviate Physiotherapy
+
+Dear [Name],
+
+I'm reaching out from Alleviate Physiotherapy. We support personal injury cases with physiotherapy, acupuncture, chiropractic, and RMT, along with detailed clinical documentation suitable for legal proceedings — including FCEs, progress reports, and discharge summaries formatted to FSRA standards.
+
+We direct-bill accident benefit insurers and have experience with CAT, MIG, and non-MIG claims.
+
+Can we arrange a brief meeting?
+
+Best regards,
+[Your Name] | Alleviate Physiotherapy | [Phone]`},
+
+  {title:'Occupational Health / WSIB',for:'Occupational Health',
+   body:`Subject: WSIB Physiotherapy Partnership — Alleviate Physiotherapy
+
+Dear Dr. [Last Name],
+
+Alleviate Physiotherapy is a WSIB-approved provider offering early intervention physiotherapy, acupuncture, and functional restoration for injured workers — often within 48 hours.
+
+We handle all WSIB Form 26 documentation and return-to-work planning, making the process seamless for your office and your patients.
+
+Would a brief meeting work to discuss a referral partnership?
+
+Warm regards,
+[Your Name] | Alleviate Physiotherapy | [Phone]`},
+
+  {title:'Pediatrician',for:'Pediatrics',
+   body:`Subject: Pediatric Physiotherapy Services — Alleviate Physiotherapy
+
+Dear Dr. [Last Name],
+
+Alleviate Physiotherapy provides specialized pediatric physiotherapy — a service many families struggle to access with reasonable wait times locally.
+
+We support children with developmental delays, torticollis, sports injuries, post-surgical rehabilitation, and neurological conditions. Our therapists are trained in family-centred, child-friendly care.
+
+I would love to connect about how we can support your young patients.
+
+Kind regards,
+[Your Name] | Alleviate Physiotherapy | [Phone]`},
+
+  {title:'Sports Medicine Physician',for:'Sports Medicine',
+   body:`Subject: Sports Rehabilitation Partnership — Alleviate Physiotherapy
+
+Dear Dr. [Last Name],
+
+I'm reaching out from Alleviate Physiotherapy regarding a referral partnership for your active and athletic patients. We offer sport-specific physiotherapy, acupuncture, dry needling, custom orthotics, and RMT with graded return-to-sport progressions.
+
+We provide detailed progress reports and work to your clinical timeline. Could we connect briefly?
+
+Best,
+[Your Name] | Alleviate Physiotherapy | [Phone]`},
+];
+
+// ── DISCOVER LINKS ────────────────────────────────────────────
+const DISCOVER=[
+  {icon:'🏥',title:'Family Physicians — Mississauga',sub:'Highest volume referral source',url:'https://www.google.com/maps/search/family+physician+Mississauga+ON',key:'dc_gp'},
+  {icon:'🦴',title:'Orthopedic Surgeons — GTA West',sub:'Post-op rehab = high LTV patients',url:'https://www.google.com/maps/search/orthopedic+surgeon+Mississauga+Oakville+ON',key:'dc_ortho'},
+  {icon:'⚡',title:'Walk-In Clinics — Mississauga/Brampton',sub:'See acute injuries daily',url:'https://www.google.com/maps/search/walk+in+clinic+Mississauga+Brampton+ON',key:'dc_win'},
+  {icon:'⚖️',title:'Personal Injury Lawyers — GTA West',sub:'MVA clients directed to trusted clinics',url:'https://www.google.com/maps/search/personal+injury+lawyer+Mississauga+Brampton',key:'dc_law'},
+  {icon:'🧠',title:'Concussion Clinics — GTA',sub:'Vestibular is our rare niche',url:'https://www.google.com/maps/search/concussion+clinic+Mississauga+ON',key:'dc_conc'},
+  {icon:'💼',title:'Occupational Health — Brampton',sub:'WSIB gateway for injured workers',url:'https://www.google.com/maps/search/occupational+health+clinic+Brampton+Mississauga',key:'dc_occ'},
+  {icon:'🧒',title:'Pediatricians — Mississauga/Brampton',sub:'Pediatric physio differentiator',url:'https://www.google.com/maps/search/pediatrician+Mississauga+Brampton+ON',key:'dc_ped'},
+  {icon:'🔍',title:'CPSO Physician Directory',sub:'Find any Ontario licensed physician',url:'https://www.cpso.on.ca/Public-Register',key:'dc_cpso'},
+];
+
+function renderGuide(){
+  // Templates
+  document.getElementById('guide-templates').innerHTML=TMPLS.map((t,i)=>`
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div>
+          <div style="font-size:0.86rem;font-weight:600">${t.title}</div>
+          <div style="font-size:0.7rem;color:var(--muted)">Best for: ${t.for}</div>
+        </div>
+        <button class="btn btn-ghost btn-xs" onclick="cpyTmpl(${i})">📋 Copy</button>
+      </div>
+      <div style="font-size:0.77rem;color:var(--ink2);line-height:1.75;white-space:pre-wrap;background:#fff;border:1px solid var(--border);border-radius:8px;padding:13px;font-family:'Outfit',sans-serif">${t.body}</div>
+    </div>`).join('');
+
+  // Discover
+  document.getElementById('guide-discover').innerHTML=DISCOVER.map(d=>{
+    const last=localStorage.getItem(d.key)||'Never';
+    return`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:15px;display:flex;align-items:center;gap:12px">
+      <div style="font-size:1.5rem;flex-shrink:0">${d.icon}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:0.82rem;font-weight:600;margin-bottom:2px">${d.title}</div>
+        <div style="font-size:0.72rem;color:var(--muted)">${d.sub}</div>
+        <div style="font-size:0.66rem;color:var(--muted);margin-top:3px">Last checked: ${last}</div>
+      </div>
+      <a href="${d.url}" target="_blank" class="btn btn-primary btn-xs" onclick="markDisc('${d.key}')">Search →</a>
+    </div>`;
+  }).join('');
+}
+
+function cpyTmpl(i){navigator.clipboard.writeText(TMPLS[i].body).then(()=>toast('Email copied!'));}
+function markDisc(k){const d=new Date().toLocaleDateString('en-CA',{year:'numeric',month:'short',day:'numeric'});localStorage.setItem(k,d);renderGuide();}
+
+// ── NAVIGATION ─────────────────────────────────────────────────
+function go(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('nav-'+id).classList.add('active');
+  const m={dashboard:renderDashboard,doctors:renderDoctors,log:renderLog,guide:renderGuide};
+  if(m[id]) m[id]();
+  if(id==='doctors') updateStageCounts();
+}
+
+// ── DASHBOARD ──────────────────────────────────────────────────
+function renderDashboard(){
+  const active=docs.filter(d=>d.st==='active').length;
+  const now=new Date();
+  const monthRefs=refs.filter(r=>{const d=new Date(r.dt);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).length;
+  const rev=refs.reduce((s,r)=>s+(parseFloat(r.rv)||0),0);
+  document.getElementById('k-active').textContent=active;
+  document.getElementById('k-month').textContent=monthRefs;
+  document.getElementById('k-rev').textContent='$'+rev.toLocaleString();
+  document.getElementById('k-total').textContent=docs.length;
+
+  // Pipeline bars
+  const maxN=Math.max(...STAGES.map(s=>docs.filter(d=>d.st===s.id).length),1);
+  document.getElementById('db-pipeline').innerHTML=STAGES.map(s=>{
+    const n=docs.filter(d=>d.st===s.id).length;
+    return`<div class="bar-row"><div class="bar-label">${s.label}</div><div class="bar-track"><div class="bar-fill" style="width:${n/maxN*100}%;background:${s.color}"></div></div><div class="bar-val">${n}</div></div>`;
+  }).join('');
+
+  // Source bars
+  const sm={};
+  refs.forEach(r=>{const d=docs.find(x=>x.id===r.dr);const n=d?`Dr. ${d.ln}`:'Other';sm[n]=(sm[n]||0)+(parseFloat(r.rv)||0);});
+  const sa=Object.entries(sm).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxR=sa[0]?sa[0][1]:1;
+  document.getElementById('db-sources').innerHTML=sa.length
+    ?sa.map(([n,v])=>`<div class="bar-row"><div class="bar-label">${n}</div><div class="bar-track"><div class="bar-fill" style="width:${v/maxR*100}%;background:var(--green)"></div></div><div class="bar-val">$${v.toLocaleString()}</div></div>`).join('')
+    :'<div style="color:var(--muted);font-size:0.77rem">Log referrals to see revenue by source.</div>';
+
+  // Recent
+  const sp={'Pending Intake':'pill-pending','Booked':'pill-booked','Active':'pill-active','Completed':'pill-completed','Cancelled':'pill-cancelled'};
+  const recent=[...refs].sort((a,b)=>new Date(b.dt)-new Date(a.dt)).slice(0,5);
+  document.getElementById('db-recent').innerHTML=recent.length
+    ?recent.map(r=>{const d=docs.find(x=>x.id===r.dr);return`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:0.82rem;font-weight:500">${r.pt}</div><div style="font-size:0.7rem;color:var(--muted)">${d?'Dr. '+d.ln:'—'} · ${r.sv}</div></div><span class="pill ${sp[r.st]||'pill-pending'}">${r.st}</span></div>`;}).join('')
+    :'<div style="color:var(--muted);font-size:0.77rem;padding-top:4px">No referrals yet. Click "+ Log Referral".</div>';
+}
+
+// ── DOCTORS TABLE ──────────────────────────────────────────────
+function updateStageCounts(){
+  const ids=['all','prospect','contacted','connected','active'];
+  ids.forEach(id=>{
+    const el=document.getElementById('sc-'+id);
+    if(el) el.textContent=id==='all'?docs.length:docs.filter(d=>d.st===id).length;
+  });
+}
+
+function setStageTab(btn, stage){
+  document.querySelectorAll('.stage-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  stageFilter=stage;
+  renderDoctors();
+}
+
+const PILL={prospect:'pill-prospect',contacted:'pill-contacted',connected:'pill-connected',active:'pill-active'};
+const SLBL={prospect:'Prospect',contacted:'Contacted',connected:'Connected',active:'Active Referrer'};
+
+function renderDoctors(){
+  updateStageCounts();
+  const search=(document.getElementById('doc-search')?.value||'').toLowerCase();
+  const spec=document.getElementById('doc-spec')?.value||'';
+  const pri=document.getElementById('doc-pri')?.value||'';
+
+  const list=docs.filter(d=>{
+    if(stageFilter&&d.st!==stageFilter)return false;
+    if(spec&&d.sp!==spec)return false;
+    if(pri&&d.pr!==pri)return false;
+    if(search){const h=`${d.fn} ${d.ln} ${d.sp} ${d.cl} ${d.ad}`.toLowerCase();if(!h.includes(search))return false;}
+    return true;
+  });
+
+  document.getElementById('doctors-tbody').innerHTML=list.map(d=>`
+    <tr>
+      <td>
+        <div style="font-weight:600;font-size:0.83rem">${d.fn} ${d.ln}</div>
+        <div style="font-size:0.7rem;color:var(--muted)">${d.cl}${d.ad?` · ${d.ad}`:''}</div>
+      </td>
+      <td>${d.sp}</td>
+      <td style="font-size:0.76rem">${d.ph||'—'}${d.fx?`<br><span style="color:var(--muted)">Fax: ${d.fx}</span>`:''}</td>
+      <td style="font-size:0.76rem">${d.em?`<a href="mailto:${d.em}" style="color:var(--navy2)">${d.em}</a>`:'—'}</td>
+      <td>${(d.pitch||[]).map(p=>`<span style="font-size:0.62rem;padding:2px 6px;background:var(--blue-lt);color:var(--blue);border-radius:100px;margin:1px;display:inline-block">${p}</span>`).join('')}</td>
+      <td><span class="pill ${PILL[d.st]||'pill-prospect'}">${SLBL[d.st]||d.st}</span></td>
+      <td style="font-size:0.74rem;color:var(--muted)">${d.dt||'—'}</td>
+      <td style="white-space:nowrap">
+        ${d.st!=='active'?`<button class="btn btn-xs btn-primary" onclick="advance('${d.id}')">→</button> `:'<span style="color:var(--green);font-size:0.72rem;font-weight:600">✓ Active</span> '}
+        <button class="btn btn-xs btn-ghost" onclick="editDoc('${d.id}')">Edit</button>
+        <button class="btn btn-xs btn-ghost" onclick="delDoc('${d.id}')" style="color:var(--red)">✕</button>
+      </td>
+    </tr>`).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:28px">No doctors match. Try different filters or add one above.</td></tr>';
+}
+
+// ── REFERRAL LOG ───────────────────────────────────────────────
+function renderLog(){
+  const search=(document.getElementById('ref-search')?.value||'').toLowerCase();
+  const ins=document.getElementById('ref-ins')?.value||'';
+  const st=document.getElementById('ref-status')?.value||'';
+  const INS={MVA:'pill-mva',WSIB:'pill-wsib','Extended Health':'pill-eh','Private / OOP':'pill-oop'};
+  const SP={'Pending Intake':'pill-pending','Booked':'pill-booked','Active':'pill-active','Completed':'pill-completed','Cancelled':'pill-cancelled'};
+
+  const list=[...refs].filter(r=>{
+    if(ins&&r.in!==ins)return false;
+    if(st&&r.st!==st)return false;
+    if(search){const d=docs.find(x=>x.id===r.dr);const h=`${r.pt} ${d?d.ln:''} ${r.sv}`.toLowerCase();if(!h.includes(search))return false;}
+    return true;
+  }).sort((a,b)=>new Date(b.dt)-new Date(a.dt));
+
+  document.getElementById('log-tbody').innerHTML=list.map(r=>{
+    const d=docs.find(x=>x.id===r.dr);
+    return`<tr>
+      <td>${r.dt}</td>
+      <td style="font-weight:600">${r.pt}</td>
+      <td>${d?`Dr. ${d.fn} ${d.ln}<br><span style="font-size:0.7rem;color:var(--muted)">${d.sp}</span>`:r.dr||'—'}</td>
+      <td>${r.sv}</td>
+      <td><span class="pill ${INS[r.in]||'pill-eh'}">${r.in}</span></td>
+      <td style="font-weight:600;color:var(--green)">$${(parseFloat(r.rv)||0).toLocaleString()}</td>
+      <td><span class="pill ${SP[r.st]||'pill-pending'}">${r.st}</span></td>
+      <td><button class="btn btn-xs btn-ghost" onclick="delRef('${r.id}')" style="color:var(--red)">✕</button></td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:28px">No referrals logged yet.</td></tr>';
+}
+
+// ── DOCTOR CRUD ────────────────────────────────────────────────
+let eid=null;
+function buildCBs(saved=[]){
+  document.getElementById('pitch-cbs').innerHTML=SVCS.map(s=>`
+    <label style="display:flex;align-items:center;gap:5px;font-size:0.74rem;cursor:pointer;min-width:130px;padding:2px 0">
+      <input type="checkbox" value="${s}" ${saved.includes(s)?'checked':''}>${s}
+    </label>`).join('');
+}
+
+function openAddDoctor(){
+  eid=null;
+  document.getElementById('doc-modal-title').textContent='Add Doctor';
+  ['d-fn','d-ln','d-cl','d-ph','d-fx','d-em','d-ad','d-no'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('d-sp').value='Family / GP';
+  document.getElementById('d-st').value='prospect';
+  document.getElementById('d-pr').value='High';
+  buildCBs([]);
+  openModal('modal-doc');
+}
+
+function editDoc(id){
+  const d=docs.find(x=>x.id===id);if(!d)return;
+  eid=id;
+  document.getElementById('doc-modal-title').textContent='Edit Doctor';
+  document.getElementById('d-fn').value=d.fn||'';
+  document.getElementById('d-ln').value=d.ln||'';
+  document.getElementById('d-cl').value=d.cl||'';
+  document.getElementById('d-ph').value=d.ph||'';
+  document.getElementById('d-fx').value=d.fx||'';
+  document.getElementById('d-em').value=d.em||'';
+  document.getElementById('d-ad').value=d.ad||'';
+  document.getElementById('d-no').value=d.no||'';
+  document.getElementById('d-sp').value=d.sp||'Family / GP';
+  document.getElementById('d-st').value=d.st||'prospect';
+  document.getElementById('d-pr').value=d.pr||'High';
+  buildCBs(d.pitch||[]);
+  openModal('modal-doc');
+}
+
+function saveDoc(){
+  const ln=document.getElementById('d-ln').value.trim();
+  if(!ln){alert('Last name required.');return;}
+  const pitch=[...document.querySelectorAll('#pitch-cbs input:checked')].map(c=>c.value);
+  const doc={
+    id:eid||('d'+Date.now()),
+    fn:document.getElementById('d-fn').value.trim(),ln,
+    sp:document.getElementById('d-sp').value,
+    st:document.getElementById('d-st').value,
+    cl:document.getElementById('d-cl').value,
+    ph:document.getElementById('d-ph').value,
+    fx:document.getElementById('d-fx').value,
+    em:document.getElementById('d-em').value,
+    ad:document.getElementById('d-ad').value,
+    no:document.getElementById('d-no').value,
+    pr:document.getElementById('d-pr').value,
+    pitch,dt:new Date().toISOString().slice(0,10)
+  };
+  docs=eid?docs.map(d=>d.id===eid?doc:d):[...docs,doc];
+  save('rh_docs',docs);
+  closeModal('modal-doc');
+  toast('Doctor saved!');
+  renderDoctors();renderDashboard();
+}
+
+function delDoc(id){
+  if(!confirm('Remove this doctor?'))return;
+  docs=docs.filter(d=>d.id!==id);
+  save('rh_docs',docs);
+  renderDoctors();renderDashboard();
+  toast('Removed.');
+}
+
+function advance(id){
+  const d=docs.find(x=>x.id===id);if(!d)return;
+  const idx=STAGES.findIndex(s=>s.id===d.st);
+  if(idx<STAGES.length-1){
+    docs=docs.map(x=>x.id===id?{...x,st:STAGES[idx+1].id,dt:new Date().toISOString().slice(0,10)}:x);
+    save('rh_docs',docs);
+    toast('Moved to '+STAGES[idx+1].label+'!');
+    renderDoctors();renderDashboard();
+  }
+}
+
+// ── REFERRAL CRUD ──────────────────────────────────────────────
+function openAddRef(){
+  ['r-pt','r-no'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('r-dt').value=new Date().toISOString().slice(0,10);
+  document.getElementById('r-rv').value='';
+  const sel=document.getElementById('r-dr');
+  const conn=docs.filter(d=>d.st==='active'||d.st==='connected');
+  sel.innerHTML='<option value="">— Select Referring Doctor —</option>'+
+    conn.map(d=>`<option value="${d.id}">Dr. ${d.fn} ${d.ln} (${d.sp})</option>`).join('');
+  if(!conn.length)sel.innerHTML+='<option disabled>No connected doctors yet — advance some from the pipeline first</option>';
+  openModal('modal-ref');
+}
+
+function saveRef(){
+  const pt=document.getElementById('r-pt').value.trim();
+  if(!pt){alert('Patient code required.');return;}
+  const ref={
+    id:'r'+Date.now(),pt,dt:document.getElementById('r-dt').value,
+    dr:document.getElementById('r-dr').value,
+    sv:document.getElementById('r-sv').value,
+    in:document.getElementById('r-in').value,
+    rv:document.getElementById('r-rv').value||'0',
+    st:document.getElementById('r-st').value,
+    no:document.getElementById('r-no').value,
+  };
+  refs.push(ref);
+  save('rh_refs',refs);
+  closeModal('modal-ref');
+  toast('Referral logged!');
+  renderLog();renderDashboard();
+}
+
+function delRef(id){
+  if(!confirm('Remove this referral?'))return;
+  refs=refs.filter(r=>r.id!==id);
+  save('rh_refs',refs);
+  renderLog();renderDashboard();
+}
+
+// ── EXPORT ─────────────────────────────────────────────────────
+function exportCSV(){
+  const rows=[['Date','Patient Code','Doctor','Specialty','Service','Insurance','Revenue','Status']];
+  refs.forEach(r=>{const d=docs.find(x=>x.id===r.dr);rows.push([r.dt,r.pt,d?`Dr. ${d.ln}`:'',d?d.sp:'',r.sv,r.in,r.rv,r.st]);});
+  const csv=rows.map(r=>r.map(c=>`"${c||''}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='referrals-'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  toast('CSV downloaded!');
+}
+
+// ── MODAL HELPERS ──────────────────────────────────────────────
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+// ── TOAST ──────────────────────────────────────────────────────
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2500);}
+
+// ── INIT ───────────────────────────────────────────────────────
+renderDashboard();
+</script>
+</body>
+</html>
